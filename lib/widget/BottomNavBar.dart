@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
+import 'package:mobile_app/cart_page.dart';
 import 'package:mobile_app/favorite_page.dart';
 import 'package:mobile_app/home_page.dart';
 
@@ -17,7 +18,7 @@ class _ConvexNavWrapperState extends State<ConvexNavWrapper> {
     HomeScreen(),
    FavoritePage(),
     const Center(child: Text("Cart")),
-    const Center(child: Text("Saved Items")),
+    CartPage(),
     const Center(child: Text("Profile")),
   ];
 

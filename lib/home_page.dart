@@ -227,6 +227,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
+            ElevatedButton(
+  onPressed: () {
+    provider.addToCart(product);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Added to cart')),
+    );
+  },
+  child: const Text("Add to Cart"),
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.deepPurple,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  ),
+)
+
           ],
         ),
       ),

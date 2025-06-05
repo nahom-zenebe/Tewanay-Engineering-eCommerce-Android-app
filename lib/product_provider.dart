@@ -10,6 +10,7 @@ class ProductProvider with ChangeNotifier {
 
   ProductModel? _product;
   List<ProductModel> _allProducts = [];
+  final List<ProductModel> _cartProducts = [];
   final List<ProductModel> _favorites = [];
 
   bool _isLoading = false;
@@ -19,6 +20,7 @@ class ProductProvider with ChangeNotifier {
   ProductModel? get product => _product;
   List<ProductModel> get allProducts => _allProducts;
   List<ProductModel> get favorites => _favorites;
+  List<ProductModel> get cartProducts => _cartProducts;
 
   // Load all products
   Future<void> loadAllProducts() async {
@@ -52,6 +54,7 @@ class ProductProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Favorites
   void toggleFavorite(ProductModel product) {
     final exists = _favorites.any((p) => p.id == product.id);
     if (exists) {
@@ -64,5 +67,30 @@ class ProductProvider with ChangeNotifier {
 
   bool isFavorite(ProductModel product) {
     return _favorites.any((p) => p.id == product.id);
+  }
+
+  // 🛒 CART METHODS
+
+  void addToCart(ProductModel product) {
+    _cartProducts.add(product);
+    notifyListeners();
+  }
+
+  void removeFromCart(ProductModel product) {
+    _cartProducts.remove(product);
+    notifyListeners();
+  }
+
+  double get cartTotal {
+    return _cartProducts.fold(0, (sum, item) => sum + item.price);
+  }
+
+  bool isInCart(ProductModel product) {
+    return _cartProducts.contains(product);
+  }
+
+  void clearCart() {
+    _cartProducts.clear();
+    notifyListeners();
   }
 }
