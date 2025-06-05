@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
+import 'package:mobile_app/favorite_page.dart';
+import 'package:mobile_app/home_page.dart';
 
 class ConvexNavWrapper extends StatefulWidget {
   const ConvexNavWrapper({super.key});
@@ -12,8 +14,8 @@ class _ConvexNavWrapperState extends State<ConvexNavWrapper> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    const Center(child: Text("Home Page")),
-    const Center(child: Text("Favorites")),
+    HomeScreen(),
+   FavoritePage(),
     const Center(child: Text("Cart")),
     const Center(child: Text("Saved Items")),
     const Center(child: Text("Profile")),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/landing_page.dart';
 import 'package:mobile_app/product_provider.dart';
+import 'package:mobile_app/widget/BottomNavBar.dart';
 import 'package:provider/provider.dart';
 
 
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home:  LandingPage(),
+     home: ConvexNavWrapper(),
     );
   }
 }
