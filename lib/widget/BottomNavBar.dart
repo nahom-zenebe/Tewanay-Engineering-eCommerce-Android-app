@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:mobile_app/cart_page.dart';
 import 'package:mobile_app/favorite_page.dart';
 import 'package:mobile_app/home_page.dart';
+import 'package:mobile_app/profilepage.dart';
 
 class ConvexNavWrapper extends StatefulWidget {
   const ConvexNavWrapper({super.key});
@@ -16,39 +16,52 @@ class _ConvexNavWrapperState extends State<ConvexNavWrapper> {
 
   final List<Widget> _pages = [
     HomeScreen(),
-   FavoritePage(),
-    const Center(child: Text("Cart")),
+    FavoritePage(),
     CartPage(),
+    Profilepage(),
     const Center(child: Text("Profile")),
   ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_selectedIndex],
-      bottomNavigationBar: ConvexAppBar(
-        style: TabStyle.react,
-        backgroundColor: Colors.white,
-        activeColor: Colors.blueAccent,
-        color: Colors.grey,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed, // Keeps all items visible
+        selectedItemColor: Colors.blueAccent,
+        unselectedItemColor: Colors.grey,
+        showUnselectedLabels: true,
         items: const [
-          TabItem(icon: Icons.home, title: 'Home'),
-          TabItem(icon: Icons.favorite_border, title: 'Fav'),
-          TabItem(icon: Icons.shopping_cart, title: 'Cart'),
-          TabItem(icon: Icons.bookmark_border, title: 'Saved'),
-          TabItem(icon: Icons.person_outline, title: 'Profile'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite_border),
+            label: 'Fav',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bookmark_border),
+            label: 'Saved',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            label: 'Profile',
+          ),
         ],
-        initialActiveIndex: _selectedIndex,
-        onTap: (int i) => setState(() => _selectedIndex = i),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add product / quick action
-        },
-        backgroundColor: Colors.blueAccent,
-        child: const Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }
