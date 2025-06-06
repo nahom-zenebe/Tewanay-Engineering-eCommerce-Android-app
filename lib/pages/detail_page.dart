@@ -19,19 +19,26 @@ class _DetailPageState extends State<DetailPage> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // Background Product Image
+          // Product Image
           SizedBox(
             height: size.height * 0.5,
             width: double.infinity,
-            child: Image.network(
-              widget.productModel.image,
-              fit: BoxFit.cover,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
+              child: Image.network(
+                widget.productModel.image,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
 
-          // Gradient overlay on image
+          // Gradient overlay
           Positioned(
             bottom: 0,
             left: 0,
@@ -40,7 +47,7 @@ class _DetailPageState extends State<DetailPage> {
               height: 100,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.transparent, Colors.black87],
+                  colors: [Colors.transparent, Colors.black45],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
@@ -48,39 +55,28 @@ class _DetailPageState extends State<DetailPage> {
             ),
           ),
 
-          // Back button and favorite
+          // Back & Favorite
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.white70,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
-                  CircleAvatar(
-                    backgroundColor: Colors.white70,
-                    child: IconButton(
-                      icon: Icon(
-                        isFav ? Icons.favorite : Icons.favorite_border,
-                        color: isFav ? Colors.red : Colors.grey,
-                      ),
-                      onPressed: () {
-                        provider.toggleFavorite(widget.productModel);
-                        setState(() {});
-                      },
-                    ),
+                  _circleIcon(Icons.arrow_back, () => Navigator.pop(context)),
+                  _circleIcon(
+                    isFav ? Icons.favorite : Icons.favorite_border,
+                    () {
+                      provider.toggleFavorite(widget.productModel);
+                      setState(() {});
+                    },
+                    iconColor: isFav ? Colors.red : Colors.grey,
                   ),
                 ],
               ),
             ),
           ),
 
-          // Product Details Container
+          // Bottom Sheet
           DraggableScrollableSheet(
             initialChildSize: 0.55,
             minChildSize: 0.55,
@@ -102,70 +98,70 @@ class _DetailPageState extends State<DetailPage> {
                     children: [
                       Text(
                         widget.productModel.title,
-                        style: const TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       Text(
                         '\$${widget.productModel.price.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 22,
-                          color: Colors.deepOrange,
-                          fontWeight: FontWeight.bold,
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.blue.shade700,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       Row(
                         children: [
                           _buildStarRating(widget.productModel.rate),
                           const SizedBox(width: 8),
                           Text(
-                            '${widget.productModel.rate.toStringAsFixed(1)} (${widget.productModel.count} reviews)',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
-                            ),
+                            '${widget.productModel.rate.toStringAsFixed(1)} • ${widget.productModel.count} reviews',
+                            style: const TextStyle(fontSize: 14, color: Colors.grey),
                           ),
                         ],
                       ),
                       const SizedBox(height: 20),
                       const Text(
                         'Description',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       Text(
                         widget.productModel.description ?? 'No description provided.',
-                        style: const TextStyle(fontSize: 16),
+                        style: const TextStyle(fontSize: 15),
                       ),
                       const SizedBox(height: 24),
+
+                      // Add to Cart Button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepPurple,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: Colors.blue.shade700,
+                            foregroundColor: Colors.white,
+                            shadowColor: Colors.blue.shade200,
+                            elevation: 6,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                           ),
                           onPressed: () {
                             provider.addToCart(widget.productModel);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Added to cart'),
+                              SnackBar(
+                                content: const Text('Added to cart'),
+                                backgroundColor: Colors.blue.shade700,
                                 behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
                               ),
                             );
                           },
                           child: const Text(
                             'Add to Cart',
-                            style: TextStyle(fontSize: 18),
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                           ),
                         ),
                       ),
@@ -180,27 +176,29 @@ class _DetailPageState extends State<DetailPage> {
     );
   }
 
+  // Circle button icon for back and favorite
+  Widget _circleIcon(IconData icon, VoidCallback onTap, {Color iconColor = Colors.black}) {
+    return CircleAvatar(
+      backgroundColor: Colors.white.withOpacity(0.9),
+      child: IconButton(
+        icon: Icon(icon, color: iconColor),
+        onPressed: onTap,
+      ),
+    );
+  }
+
+  // Star rating builder
   Widget _buildStarRating(double rating) {
-    // Round to nearest 0.5
     final roundedRating = (rating * 2).round() / 2;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(5, (index) {
         if (roundedRating - index >= 1) {
-          // Full star
-          return const Icon(Icons.star, 
-              size: 20, 
-              color: Colors.amber);
+          return const Icon(Icons.star, size: 20, color: Colors.amber);
         } else if (roundedRating - index > 0) {
-          // Half star
-          return const Icon(Icons.star_half,
-              size: 20,
-              color: Colors.amber);
+          return const Icon(Icons.star_half, size: 20, color: Colors.amber);
         } else {
-          // Empty star
-          return const Icon(Icons.star_border,
-              size: 20,
-              color: Colors.amber);
+          return const Icon(Icons.star_border, size: 20, color: Colors.amber);
         }
       }),
     );

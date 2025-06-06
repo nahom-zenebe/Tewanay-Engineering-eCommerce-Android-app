@@ -74,8 +74,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final categories = _getAllCategories(provider.allProducts);
 
     return Scaffold(
+      backgroundColor: Colors.blue.shade100,
       appBar: AppBar(
-        backgroundColor: theme.scaffoldBackgroundColor,
+
+
         elevation: 0,
         title: Text(
           'ShopNest',
@@ -90,6 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       drawer: _buildDrawer(theme),
       body: Column(
+      
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -262,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, size: 48, color: theme.colorScheme.primary),
+            Icon(Icons.search_off, size: 48, color:Colors.blue[400]),
             const SizedBox(height: 16),
             Text(
               'No matching products found',
@@ -412,7 +415,7 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: theme.colorScheme.primary,
+          backgroundColor: Colors.blue[500],
           foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 36),
           shape: RoundedRectangleBorder(
