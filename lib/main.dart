@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/landing_page.dart';
-import 'package:mobile_app/product_provider.dart';
-import 'package:mobile_app/widget/BottomNavBar.dart';
+import 'package:mobile_app/pages/landing_page.dart';
+import 'package:mobile_app/provider/product_provider.dart';
+import 'package:mobile_app/provider/user_provider.dart'; // <-- Import AuthProvider
 import 'package:provider/provider.dart';
-
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ProductProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()), // <-- Add this line
+      ],
       child: const MyApp(),
     ),
   );
@@ -26,7 +28,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-     home: ConvexNavWrapper(),
+      home: LandingPage(),
     );
   }
 }

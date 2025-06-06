@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/cart_page.dart';
-import 'package:mobile_app/favorite_page.dart';
-import 'package:mobile_app/home_page.dart';
-import 'package:mobile_app/profilepage.dart';
+import 'package:mobile_app/pages/cart_page.dart';
+import 'package:mobile_app/pages/favorite_page.dart';
+
+import 'package:mobile_app/pages/home_page.dart';
+import 'package:mobile_app/pages/profilepage.dart';
 
 class ConvexNavWrapper extends StatefulWidget {
   const ConvexNavWrapper({super.key});

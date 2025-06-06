@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:mobile_app/model/product_model.dart.dart';
-import 'package:mobile_app/product_remote_datasource.dart';
+import 'package:mobile_app/data/product_remote_datasource.dart';
 import 'package:flutter/material.dart';
 
 class ProductProvider with ChangeNotifier {
@@ -88,6 +88,7 @@ class ProductProvider with ChangeNotifier {
   bool isInCart(ProductModel product) {
     return _cartProducts.contains(product);
   }
+  
 
   void clearCart() {
     _cartProducts.clear();
