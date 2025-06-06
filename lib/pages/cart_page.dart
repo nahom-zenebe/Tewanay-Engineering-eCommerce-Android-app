@@ -1,16 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/model/product_model.dart.dart';
 import 'package:mobile_app/provider/product_provider.dart';
 import 'package:provider/provider.dart';
 
-class CartPage extends StatelessWidget {
+class CartPage extends StatefulWidget {
   const CartPage({super.key});
+
+  @override
+  State<CartPage> createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
+  final Map<String, int> _quantities = {}; // Local quantity tracker
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProductProvider>(context);
     final cartItems = provider.cartProducts;
-    final total = provider.cartTotal;
+
+    // Initialize quantities if not already done
+    for (var item in cartItems) {
+      _quantities[item.title] ??= 1;
+    }
+
+    final total = cartItems.fold<double>(
+      0,
+      (sum, item) => sum + (item.price * _quantities[item.title]!),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -19,10 +34,7 @@ class CartPage extends StatelessWidget {
       ),
       body: cartItems.isEmpty
           ? const Center(
-              child: Text(
-                'Your cart is empty',
-                style: TextStyle(fontSize: 18),
-              ),
+              child: Text('Your cart is empty', style: TextStyle(fontSize: 18)),
             )
           : Column(
               children: [
@@ -32,7 +44,48 @@ class CartPage extends StatelessWidget {
                     separatorBuilder: (_, __) => const Divider(height: 1),
                     itemBuilder: (context, index) {
                       final item = cartItems[index];
-                      return _buildCartItem(context, item, provider);
+                      return ListTile(
+                        leading: CircleAvatar(
+                          radius: 28,
+                          backgroundImage: NetworkImage(item.image),
+                        ),
+                        title: Text(item.title,
+                            maxLines: 2, overflow: TextOverflow.ellipsis),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '\$${item.price.toStringAsFixed(2)} x ${_quantities[item.title]}',
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.remove_circle_outline),
+                                  onPressed: () {
+                                    if (_quantities[item.title]! > 1) {
+                                      setState(() => _quantities[item.title] =
+                                          _quantities[item.title]! - 1);
+                                    }
+                                  },
+                                ),
+                                Text('${_quantities[item.title]}'),
+                                IconButton(
+                                  icon: const Icon(Icons.add_circle_outline),
+                                  onPressed: () {
+                                    setState(() => _quantities[item.title] =
+                                        _quantities[item.title]! + 1);
+                                  },
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => provider.removeFromCart(item),
+                        ),
+                      );
                     },
                   ),
                 ),
@@ -42,30 +95,8 @@ class CartPage extends StatelessWidget {
     );
   }
 
-  Widget _buildCartItem(
-    BuildContext context,
-    ProductModel product,
-    ProductProvider provider,
-  ) {
-    return ListTile(
-      leading: CircleAvatar(
-        radius: 28,
-        backgroundImage: NetworkImage(product.image),
-      ),
-      title: Text(product.title, maxLines: 2, overflow: TextOverflow.ellipsis),
-      subtitle: Text('\$${product.price.toStringAsFixed(2)}'),
-      trailing: IconButton(
-        icon: const Icon(Icons.delete, color: Colors.red),
-        onPressed: () => provider.removeFromCart(product),
-      ),
-    );
-  }
-
   Widget _buildCartSummary(
-    BuildContext context,
-    double total,
-    ProductProvider provider,
-  ) {
+      BuildContext context, double total, ProductProvider provider) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: const BoxDecoration(

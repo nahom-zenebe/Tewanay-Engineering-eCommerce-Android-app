@@ -116,6 +116,20 @@ class _DetailPageState extends State<DetailPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          _buildStarRating(widget.productModel.rate),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${widget.productModel.rate.toStringAsFixed(1)} (${widget.productModel.count} reviews)',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 20),
                       const Text(
                         'Description',
@@ -141,7 +155,13 @@ class _DetailPageState extends State<DetailPage> {
                             ),
                           ),
                           onPressed: () {
-                            // Add to cart functionality
+                            provider.addToCart(widget.productModel);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Added to cart'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
                           },
                           child: const Text(
                             'Add to Cart',
@@ -157,6 +177,32 @@ class _DetailPageState extends State<DetailPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildStarRating(double rating) {
+    // Round to nearest 0.5
+    final roundedRating = (rating * 2).round() / 2;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(5, (index) {
+        if (roundedRating - index >= 1) {
+          // Full star
+          return const Icon(Icons.star, 
+              size: 20, 
+              color: Colors.amber);
+        } else if (roundedRating - index > 0) {
+          // Half star
+          return const Icon(Icons.star_half,
+              size: 20,
+              color: Colors.amber);
+        } else {
+          // Empty star
+          return const Icon(Icons.star_border,
+              size: 20,
+              color: Colors.amber);
+        }
+      }),
     );
   }
 }

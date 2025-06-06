@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/provider/user_provider.dart';
-import 'package:provider/provider.dart';
-
-import 'home_page.dart';
 import 'login_page.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -18,12 +14,10 @@ class _SignUpPageState extends State<SignUpPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
-  String _selectedRole = 'user'; // Default role
+  String _selectedRole = 'user';
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -52,10 +46,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
-                        labelText: "Email",
-                        prefixIcon: const Icon(Icons.email),
+                        labelText: "email ",
+                        prefixIcon: const Icon(Icons.person),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       validator: (value) => value!.isEmpty ? 'Enter email' : null,
@@ -102,18 +95,11 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            await authProvider.register(
-                              _nameController.text,
-                              _emailController.text,
-                              _passwordController.text,
-                              _selectedRole,
+                            // Show dialog or message: "Signup successful. Please login."
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Account created. Please log in.")),
                             );
-
-                            if (authProvider.user != null) {
-                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(authProvider.error ?? "Signup failed")));
-                            }
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage()));
                           }
                         },
                         child: const Text("Sign Up", style: TextStyle(fontSize: 16)),

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/pages/signuppage.dart';
-import 'package:mobile_app/provider/user_provider.dart';
-import 'package:provider/provider.dart';
-import 'home_page.dart';
 
+
+import '../widget/BottomNavBar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,11 +16,19 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+
+  void validateAndNavigate() {
+    if (_formKey.currentState!.validate()) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const ConvexNavWrapper()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -30,9 +37,14 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Welcome Back", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF1E88E5))),
+              const Text("Welcome Back",
+                  style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E88E5))),
               const SizedBox(height: 8),
-              const Text("Login to continue to ShopNest", style: TextStyle(color: Colors.grey)),
+              const Text("Login to continue to ShopNest",
+                  style: TextStyle(color: Colors.grey)),
               const SizedBox(height: 32),
               Form(
                 key: _formKey,
@@ -40,13 +52,21 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     TextFormField(
                       controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         labelText: "Email",
                         prefixIcon: const Icon(Icons.email),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
-                      validator: (value) => value!.isEmpty ? 'Enter email' : null,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Enter email';
+                        }
+                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                          return 'Enter valid email';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -56,12 +76,17 @@ class _LoginPageState extends State<LoginPage> {
                         labelText: "Password",
                         prefixIcon: const Icon(Icons.lock),
                         suffixIcon: IconButton(
-                          icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                          icon: Icon(_obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility),
+                          onPressed: () => setState(
+                              () => _obscurePassword = !_obscurePassword),
                         ),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
-                      validator: (value) => value!.isEmpty ? 'Enter password' : null,
+                      validator: (value) =>
+                          value!.isEmpty ? 'Enter password' : null,
                     ),
                     const SizedBox(height: 8),
                     Align(
@@ -78,33 +103,31 @@ class _LoginPageState extends State<LoginPage> {
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           backgroundColor: const Color(0xFF1E88E5),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            await authProvider.login(_emailController.text, _passwordController.text);
-                            if (authProvider.user != null) {
-                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(authProvider.error ?? "Login failed")));
-                            }
-                          }
-                        },
-                        child: const Text("Login", style: TextStyle(fontSize: 16)),
+                        onPressed: _isLoading ? null : validateAndNavigate,
+                        child: _isLoading
+                            ? const CircularProgressIndicator(
+                                color: Colors.white)
+                            : const Text("Login",
+                                style: TextStyle(fontSize: 16)),
                       ),
                     ),
                     const SizedBox(height: 24),
                     Row(
                       children: const [
                         Expanded(child: Divider()),
-                        Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text("or login with")),
+                        Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8),
+                            child: Text("or login with")),
                         Expanded(child: Divider()),
                       ],
                     ),
                     const SizedBox(height: 16),
                     OutlinedButton.icon(
                       onPressed: () {},
-                      icon: Icon(Icons.g_mobiledata),
+                      icon: const Icon(Icons.g_mobiledata),
                       label: const Text("Login with Google"),
                     ),
                     const SizedBox(height: 24),
@@ -114,7 +137,11 @@ class _LoginPageState extends State<LoginPage> {
                         const Text("Don't have an account?"),
                         TextButton(
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (_) => const SignUpPage()));
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const SignUpPage()),
+                            );
                           },
                           child: const Text("Sign Up"),
                         ),

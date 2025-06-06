@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/pages/cart_page.dart';
 import 'package:mobile_app/pages/detail_page.dart';
 import 'package:mobile_app/model/product_model.dart.dart';
+import 'package:mobile_app/pages/favorite_page.dart';
 import 'package:mobile_app/pages/landing_page.dart';
 import 'package:mobile_app/provider/product_provider.dart';
-import 'package:mobile_app/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -32,7 +33,6 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     });
   }
-
 
   @override
   void dispose() {
@@ -73,7 +73,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final filteredProducts = _filterProducts(provider.allProducts);
     final categories = _getAllCategories(provider.allProducts);
 
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: theme.scaffoldBackgroundColor,
@@ -92,13 +91,11 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: _buildDrawer(theme),
       body: Column(
         children: [
-          // Search Field
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: _buildSearchField(theme),
           ),
 
-          // Category Chips
           SizedBox(
             height: 50,
             child: ListView.builder(
@@ -176,29 +173,32 @@ class _HomeScreenState extends State<HomeScreen> {
             leading: Icon(Icons.home, color: theme.colorScheme.primary),
             title: Text('Home'),
             onTap: () {
-              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const HomeScreen()),
+              );
             },
           ),
           ListTile(
             leading: Icon(Icons.favorite, color: theme.colorScheme.primary),
             title: Text('Favorites'),
-            onTap: () {},
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const FavoritePage()),
+              );
+            },
           ),
           ListTile(
             leading:
                 Icon(Icons.shopping_cart, color: theme.colorScheme.primary),
             title: Text('My Cart'),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: Icon(Icons.settings, color: theme.colorScheme.primary),
-            title: Text('Settings'),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: Icon(Icons.help_outline, color: theme.colorScheme.primary),
-            title: Text('Help & Support'),
-            onTap: () {},
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const CartPage()),
+              );
+            },
           ),
 
           const Spacer(),
@@ -208,16 +208,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: Text('Logout'),
-            onTap: ()async {
-               final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                await authProvider.logout();
-                Navigator.pushAndRemoveUntil(
-               context,
-              MaterialPageRoute(builder: (_) => const LandingPage()),
-      (route) => false,
-    );
-
-           
+            onTap: () async {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const LandingPage()),
+                (route) => false,
+              );
             },
           ),
           const SizedBox(height: 16),
@@ -286,7 +282,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 0.7,
+        childAspectRatio: 0.65,
       ),
       itemCount: filteredProducts.length,
       itemBuilder: (context, index) {
@@ -315,98 +311,143 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         elevation: 2,
         shadowColor: Colors.black12,
+       child: Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    
+    Stack(
+      children: [
+        ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          child: AspectRatio(
+            aspectRatio: 1.2,
+            child: Image.network(
+              product.image,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: Colors.grey[200],
+                child: const Icon(Icons.image_not_supported),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          top: 8,
+          right: 8,
+          child: IconButton(
+            icon: Icon(
+              isFav ? Icons.favorite : Icons.favorite_border,
+              color: isFav ? Colors.red : Colors.white,
+            ),
+            onPressed: () => provider.toggleFavorite(product),
+          ),
+        ),
+      ],
+    ),
+
+   
+   Flexible(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image with Favorite Button
-            Stack(
+            // Title
+            Text(
+              product.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 1),
+
+            // Rating
+            Row(
               children: [
-                ClipRRect(
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(16)),
-                  child: AspectRatio(
-                    aspectRatio: 1.2,
-                    child: Image.network(
-                      product.image,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.image_not_supported),
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: IconButton(
-                    icon: Icon(
-                      isFav ? Icons.favorite : Icons.favorite_border,
-                      color: isFav ? Colors.red : Colors.white,
-                    ),
-                    onPressed: () => provider.toggleFavorite(product),
+                _buildStarRating(product.rate, theme),
+                const SizedBox(width: 4),
+                Text(
+                  '(${product.count})',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurface.withOpacity(0.6),
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: 1),
 
-            // Product Details
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-              child: Text(
-                product.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  color: theme.colorScheme.onSurface,
-                ),
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-              child: Text(
-                '\$${product.price.toStringAsFixed(2)}',
-                style: TextStyle(
-                  color: theme.colorScheme.secondary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-
-            // Add to Cart Button
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              child: ElevatedButton(
-                onPressed: () {
-                  provider.addToCart(product);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Added to cart'),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 36),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text("Add to Cart"),
+            
+            Text(
+              '\$${product.price.toStringAsFixed(2)}',
+              style: TextStyle(
+                color: theme.colorScheme.secondary,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
               ),
             ),
           ],
         ),
       ),
+    ),
+
+
+    Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: ElevatedButton(
+        onPressed: () {
+          provider.addToCart(product);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Added to cart'),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: theme.colorScheme.primary,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(double.infinity, 36),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: const Text("Add to Cart"),
+      ),
+    ),
+  ],
+),
+
+      ),
+    );
+  }
+
+  Widget _buildStarRating(double rating, ThemeData theme) {
+
+    final roundedRating = (rating * 2).round() / 2;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(5, (index) {
+        if (roundedRating - index >= 1) {
+    
+          return Icon(Icons.star, size: 16, color: Colors.amberAccent);
+        } else if (roundedRating - index > 0) {
+       
+          return Icon(Icons.star_half,
+              size: 16, color: theme.colorScheme.secondary);
+        } else {
+ 
+          return Icon(Icons.star_border,
+              size: 16, color: theme.colorScheme.secondary);
+        }
+      }),
     );
   }
 }
