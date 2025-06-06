@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/pages/detail_page.dart';
 import 'package:mobile_app/model/product_model.dart.dart';
+import 'package:mobile_app/pages/landing_page.dart';
 import 'package:mobile_app/provider/product_provider.dart';
+import 'package:mobile_app/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -31,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -39,21 +42,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<ProductModel> _filterProducts(List<ProductModel> products) {
     List<ProductModel> filtered = products;
-    
+
     // Apply search filter
     if (_searchTerm.isNotEmpty) {
       filtered = filtered
           .where((p) => p.title.toLowerCase().contains(_searchTerm))
           .toList();
     }
-    
+
     // Apply category filter
     if (_selectedCategory != null && _selectedCategory != 'All') {
-      filtered = filtered
-          .where((p) => p.category == _selectedCategory)
-          .toList();
+      filtered =
+          filtered.where((p) => p.category == _selectedCategory).toList();
     }
-    
+
     return filtered;
   }
 
@@ -70,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final provider = Provider.of<ProductProvider>(context);
     final filteredProducts = _filterProducts(provider.allProducts);
     final categories = _getAllCategories(provider.allProducts);
+
 
     return Scaffold(
       appBar: AppBar(
@@ -94,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: _buildSearchField(theme),
           ),
-          
+
           // Category Chips
           SizedBox(
             height: 50,
@@ -104,22 +107,26 @@ class _HomeScreenState extends State<HomeScreen> {
               itemCount: categories.length,
               itemBuilder: (context, index) {
                 final category = categories[index];
-                final isSelected = _selectedCategory == category || 
-                                 (category == 'All' && _selectedCategory == null);
-                
+                final isSelected = _selectedCategory == category ||
+                    (category == 'All' && _selectedCategory == null);
+
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: FilterChip(
                     label: Text(
                       category,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : theme.colorScheme.onSurface,
+                        color: isSelected
+                            ? Colors.white
+                            : theme.colorScheme.onSurface,
                       ),
                     ),
                     selected: isSelected,
                     onSelected: (selected) {
                       setState(() {
-                        _selectedCategory = selected ? (category == 'All' ? null : category) : null;
+                        _selectedCategory = selected
+                            ? (category == 'All' ? null : category)
+                            : null;
                       });
                     },
                     backgroundColor: theme.colorScheme.surface,
@@ -136,9 +143,9 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Product Grid
           Expanded(
             child: _buildProductGrid(provider, filteredProducts, theme),
@@ -178,7 +185,8 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () {},
           ),
           ListTile(
-            leading: Icon(Icons.shopping_cart, color: theme.colorScheme.primary),
+            leading:
+                Icon(Icons.shopping_cart, color: theme.colorScheme.primary),
             title: Text('My Cart'),
             onTap: () {},
           ),
@@ -200,8 +208,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: Text('Logout'),
-            onTap: () {
-              // Handle logout logic
+            onTap: ()async {
+               final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                await authProvider.logout();
+                Navigator.pushAndRemoveUntil(
+               context,
+              MaterialPageRoute(builder: (_) => const LandingPage()),
+      (route) => false,
+    );
+
+           
             },
           ),
           const SizedBox(height: 16),
@@ -231,11 +247,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildProductGrid(ProductProvider provider, List<ProductModel> filteredProducts, ThemeData theme) {
+  Widget _buildProductGrid(ProductProvider provider,
+      List<ProductModel> filteredProducts, ThemeData theme) {
     if (provider.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    
+
     if (provider.error != null) {
       return Center(
         child: Text(
@@ -243,7 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     }
-    
+
     if (filteredProducts.isEmpty) {
       return Center(
         child: Column(
@@ -262,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     }
-    
+
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -305,7 +322,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
                   child: AspectRatio(
                     aspectRatio: 1.2,
                     child: Image.network(
@@ -331,7 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            
+
             // Product Details
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
@@ -346,7 +364,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            
+
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
               child: Text(
@@ -358,7 +376,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            
+
             // Add to Cart Button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
