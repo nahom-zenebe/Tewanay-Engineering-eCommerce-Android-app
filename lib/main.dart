@@ -4,7 +4,11 @@ import 'package:mobile_app/provider/product_provider.dart';
 
 import 'package:provider/provider.dart';
 
-void main() {
+void main()async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final productProvider = ProductProvider();
+  await productProvider.loadCartFromPrefs();
   runApp(
     MultiProvider(
       providers: [

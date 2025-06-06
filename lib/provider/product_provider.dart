@@ -1,9 +1,12 @@
 // lib/providers/product_provider.dart
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_app/model/product_model.dart.dart';
 import 'package:mobile_app/data/product_remote_datasource.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductProvider with ChangeNotifier {
   final ProductRemoteDataSource _dataSource = ProductRemoteDataSource();
@@ -71,27 +74,47 @@ class ProductProvider with ChangeNotifier {
 
   // 🛒 CART METHODS
 
-  void addToCart(ProductModel product) {
-    _cartProducts.add(product);
-    notifyListeners();
-  }
+void addToCart(ProductModel product) {
+  _cartProducts.add(product);
+  saveCartToPrefs();
+  notifyListeners();
+}
 
-  void removeFromCart(ProductModel product) {
-    _cartProducts.remove(product);
-    notifyListeners();
-  }
+void removeFromCart(ProductModel product) {
+  _cartProducts.remove(product);
+  saveCartToPrefs();
+  notifyListeners();
+}
+
+void clearCart() {
+  _cartProducts.clear();
+  saveCartToPrefs();
+  notifyListeners();
+}
+
 
   double get cartTotal {
     return _cartProducts.fold(0, (sum, item) => sum + item.price);
   }
+  Future<void> saveCartToPrefs() async {
+  final prefs = await SharedPreferences.getInstance();
+  final cartJson = _cartProducts.map((p) => json.encode(p.toJson())).toList();
+  await prefs.setStringList('cart_items', cartJson);
+}
+
+Future<void> loadCartFromPrefs() async {
+  final prefs = await SharedPreferences.getInstance();
+  final cartJson = prefs.getStringList('cart_items') ?? [];
+  _cartProducts.clear();
+  _cartProducts.addAll(cartJson.map((jsonStr) =>
+      ProductModel.fromJson(json.decode(jsonStr))));
+  notifyListeners();
+}
+
 
   bool isInCart(ProductModel product) {
     return _cartProducts.contains(product);
   }
   
 
-  void clearCart() {
-    _cartProducts.clear();
-    notifyListeners();
-  }
 }

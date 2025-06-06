@@ -10,14 +10,13 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-  final Map<String, int> _quantities = {}; // Local quantity tracker
-
+  final Map<String, int> _quantities = {}; 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProductProvider>(context);
     final cartItems = provider.cartProducts;
 
-    // Initialize quantities if not already done
+  
     for (var item in cartItems) {
       _quantities[item.title] ??= 1;
     }

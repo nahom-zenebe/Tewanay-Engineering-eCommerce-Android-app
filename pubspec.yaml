@@ -39,6 +39,7 @@ dependencies:
   convex_bottom_bar: ^3.2.0
   flutter_stripe: ^9.4.0
   fluttertoast: ^8.2.12
+  shared_preferences: ^2.2.2
   
 
 dev_dependencies:
